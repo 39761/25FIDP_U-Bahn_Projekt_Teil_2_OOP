@@ -4,7 +4,7 @@
 
 Wir modellieren den Betrieb einer neuen Teststrecke. Die Strecke besteht aus vier Stationen (A, B, C, D) und wird im Einrichtungsbetrieb (nur von A nach D) befahren.
 
-User Story: Verkehrsbetrieb (Kunde)
+##User-Story 1: Verkehrsbetrieb (Kunde)##
 
 "Unser Betrieb startet täglich um 05:00 Uhr an der Startstation A. Ab dann fährt alle 10 Minuten ein Zug los, bis der letzte Zug um 23:00 Uhr an Station A startet."
 
@@ -51,8 +51,3 @@ Das System berechnet die Durchfahrtszeiten aller Züge für die gewählte Haltes
 Ausgabe: * Ausgabe der nächstmöglichen tatsächlichen Abfahrtszeit, die gleich oder nach der gewünschten Zeit liegt.
 
 Beispiel: Wer an Station B um 05:01 Uhr sein möchte, erhält die Info "05:12 Uhr" (da der erste Zug um 05:00 in A startet und um 05:02 in B ankommt – zu früh; der zweite Zug startet um 05:10 in A und ist um 05:12 in B).
-
-Hilfestellung zur Logik
-
-Zeitpunkt der $n$-ten Bahn an Station $X$:
-$T(X) = T_{Start,A} + (n \times 10\text{ Min}) + \text{Fahrtzeit}(A \to X)$
