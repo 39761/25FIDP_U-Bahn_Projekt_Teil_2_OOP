@@ -9,9 +9,14 @@ Ziel dieses Sprints ist die fachliche Vervollständigung der Reiseauskunft. Der 
 ### User Story 3.1: Verkehrsbetrieb
 **„Wenn der Benutzer eine falsche Eingabe macht, darf das Programm nicht abstürzen. Kleine Abweichungen bei der Eingabe sollen möglich sein und die Ausgabe der gewünschten Information nicht behindern.“**
 
-* Das System muss Eingaben eigenständig korrigieren, sofern sie zu mindestens 80 % korrekt sind oder durch ein händisches Mapping (z. B. "Hbf." zu "Hauptbahnhof") eindeutig zugewiesen werden können.
-* Das System muss folgende Abweichungen abfangen: Groß-/Kleinschreibung, führende/folgende Leerzeichen, Umlaute, das scharfe S (ß) sowie gängige Abkürzungen (z. B. Str. für Straße, Hbf. für Hauptbahnhof, Fr.- für Friedrich-).
-* Bei Eingaben, die auch unter Berücksichtigung der 80 %-Regel und des Mappings nicht eindeutig zugeordnet werden können, muss das System den Benutzer informieren und eine erneute Eingabe ermöglichen, anstatt den Prozess abzubrechen.
+* **Normalisierungs-Pflicht:** Das System muss die Eingabe vor dem Vergleich händisch vorverarbeiten:
+    * Entfernen von führenden/folgenden Leerzeichen.
+    * Umwandlung in Kleinschreibung.
+    * Vereinheitlichung von Sonderzeichen (Bindestriche zu Leerzeichen).
+    * Ersetzung von Umlauten (ä -> ae, etc.) und ß (-> ss).
+* **Ersetzung von Kürzeln (Mapping):** Das System muss vordefinierte Abkürzungen in der Benutzereingabe erkennen und durch die entsprechenden Vollwörter aus der Haltestellenliste ersetzen (z. B. wird aus "Hbf." automatisch "Hauptbahnhof", aus "Str." wird "Straße" und aus "Fr.-" wird "Friedrich-"). Hierbei muss darauf geachtet werden, dass die Eindeutigkeit erhalten bleibt - siehe dazu Testfälle und Anmerkungen unten in diesem Dokument.
+* **Fuzzy-Matching:** Nach der Normalisierung muss das System eine Übereinstimmung von mindestens 80 % zum Datenbestand erkennen.
+* **Fehlerbehandlung:** Bei nicht eindeutigen Eingaben muss eine freundliche Fehlermeldung ausgegeben und die Eingabe wiederholt werden.
 
 ### User Story 3.2: Verkehrsbetrieb
 **„Als Verkehrsplaner möchten wir ein Rabattsystem implementieren, das unserem Selbstverständnis als sozialem Unternehmen gerecht wird. Außerdem möchten wir Anreize für bargeldloses Zahlen schaffen und die Kundenbindung durch Mehrfachkarten erhöhen.“**
@@ -50,21 +55,25 @@ Ziel dieses Sprints ist die fachliche Vervollständigung der Reiseauskunft. Der 
 
 ---
 
-## Liste der Testfälle für die manuelle Abnahme
+## Liste der Testfälle für die Abnahme (Fokus U1)
 
-Die folgende Tabelle dient als Grundlage für die manuelle Prüfung der Eingabe-Logik. Eine Station gilt als erkannt, wenn das Programm den offiziellen Namen bestätigt oder für die weitere Reiseplanung verwendet.
+| Nr. | Eingabe-Typ | Benutzereingabe | Erwartete Ausgabe / Reaktion | Logik-Prüfung |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | **Exakter Match** | `Messe` | `Messe` erkannt | Standardfall |
+| 2 | **Mapping & Punkt** | `Fürth Hbf.` | `Fürth Hauptbahnhof` erkannt | Abkürzung mit Punkt |
+| 3 | **Kleinschreibung** | `aufseßplatz` | `Aufseßplatz` erkannt | Case-Insensitivity |
+| 4 | **ß-Ersetzung** | `Aufsessplatz` | `Aufseßplatz` erkannt | ß vs. ss Handling |
+| 5 | **Umlaute** | `Baerenchanze` | `Bärenschanze` erkannt | ae -> ä Konvertierung |
+| 6 | **Tippfehler (80%)** | `Maffeiplatz` | `Maffeiplatz` erkannt | Fehlendes 'z' (Fuzzy) |
+| 7 | **Tippfehler (80%)** | `Jakobinenstrase` | `Jakobinenstraße` erkannt | Buchstabendreher/Fehler |
+| 8 | **Leerzeichen** | `  Gostenhof  ` | `Gostenhof` erkannt | Trim / Strip Funktion |
+| 9 | **Langer Name** | `Langwasser Nord` | `Langwasser Nord` erkannt | Mehrwort-Erkennung |
+| 10 | **Nicht Eindeutig** | `Hauptbahnhof` | `Hauptbahnhof` erkannt | Korrekte Wahl (nicht Fürth) |
+| 11 | **Zu ungenau** | `Wasser` | Fehlermeldung | < 80% (zu viele Treffer möglich) |
+| 12 | **Linien-Fremd** | `Flughafen` | Fehlermeldung | Station existiert nicht auf U1 |
 
-| Eingabe-Typ | Benutzereingabe | Erwartete Ausgabe / Reaktion |
-| :--- | :--- | :--- |
-| **Exakter Match** | `Messe` | Station `Messe` erkannt |
-| **Mapping (Hbf)** | `Fürth Hbf.` | Station `Fürth Hauptbahnhof` erkannt |
-| **Mapping (Str)** | `Rothenburger Str` | Station `Rothenburger Straße` erkannt |
-| **Mapping (Fr.-)** | `Fr.-Ebert-Platz` | Station `Friedrich-Ebert-Platz` erkannt |
-| **Fuzzy (80% - Tippfehler)** | `Mese` | Station `Messe` erkannt |
-| **Fuzzy (80% - Dreher)** | `Lorenzkirhce` | Station `Lorenzkirche` erkannt |
-| **Fuzzy (80% - Umlaute)** | `Munchener Freiheit` | Station `Münchner Freiheit` erkannt |
-| **Gerade noch Erfolg** | `Bauernfeindstr` | Station `Bauernfeindstraße` erkannt |
-| **Zu ungenau (< 80%)** | `Lorenz` | Fehlermeldung & Aufforderung zur Neueingabe |
-| **Zu ungenau (< 80%)** | `Freiheit` | Fehlermeldung & Aufforderung zur Neueingabe |
-| **Kein Netzbezug** | `Berlin Hbf` | Fehlermeldung & Aufforderung zur Neueingabe |
-| **Sonderzeichen** | ` Plärrer!!! ` | Station `Plärrer` erkannt |
+Erläuterung zu Testfall 10 & 12:
+
+    Testfall 10: Da die Eingabe exakt "Hauptbahnhof" lautet, muss das System diesen auch wählen und nicht den "Fürth Hauptbahnhof", da hier ein 100% Match vorliegt.
+
+    Testfall 12: Da die U2/U3 noch nicht implementiert sind, muss das System den "Flughafen" als unbekannt ablehnen, um die Integrität der U1-Reiseplanung zu wahren.
