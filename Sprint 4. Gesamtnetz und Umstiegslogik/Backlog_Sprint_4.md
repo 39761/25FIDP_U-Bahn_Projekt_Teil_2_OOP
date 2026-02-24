@@ -27,7 +27,7 @@ Der wesentliche Schwerpunkt im Sprint ist die Implementierung der Logik für den
 ### Abnahmekriterien US 4.2:
 * **4.2.1** Das System identifiziert gültige Umstiegsstationen (Knotenpunkte) zwischen den Linien.
 * **4.2.2** Die Umstiegslogik berücksichtigt eine definierte Mindestumstiegszeit (Puffer) zwischen Ankunft und Abfahrt.
-* **4.2.3** Bei der Routenausgabe werden die Abfahrtszeiten der Anschlusszüge an den Knotenpunkten korrekt angezeigt.
+* **4.2.3** Bei der Routenausgabe werden die Ankunftszeiten an der Haltestelle, an der der Umstieg erfolgt und der Name dieser Haltestelle, sowie die Linie, mit der der Fahrgast weiterfährt und die Abfahrtszeiten der Anschlusszüge korrekt angezeigt.
 
 > Die Mindestzeit für den Umstieg, die in der Routenberechnung mit einbezogen werden soll, beträgt 5 min an den Hauptumstiegspunkten (Hauptbahnhof und Plärrer) und 3 min an allen anderen Haltestellen.
 >
